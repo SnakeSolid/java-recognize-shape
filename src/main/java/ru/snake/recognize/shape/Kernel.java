@@ -41,8 +41,8 @@ public class Kernel {
 		double kernelSum = 0.0;
 
 		for (int index = 0; index < size; index += 1) {
-			double factor = Math.abs(index - center) / (center + 1.0);
-			values[index] = Math.sqrt(Math.pow(1 - factor, 2.0) + 1) - 1;
+			double factor = Math.PI / 4.0 * (1.0 - Math.abs(index - center) / (center + 1.0));
+			values[index] = Math.sqrt(1.0 + Math.pow(Math.tan(factor), 2.0));
 			kernelSum += values[index];
 		}
 
