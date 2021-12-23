@@ -27,5 +27,5 @@ and circles.
 ![Triangle](images/shape-triangle.png)
 ![Square](images/shape-square.png)
 ![Polygon](images/shape-polygon.png)
-![Circle](images/shape-circle.png)
+![Ellipse](images/shape-ellipse.png)
 ![Not recognized](images/shape-unknown.png)
