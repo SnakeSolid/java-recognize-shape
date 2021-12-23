@@ -10,6 +10,8 @@ public class Algorithm {
 
 	private static final double CIRCLE_THRESHOLD = 0.8;
 
+	private static final double CORNER_THRESHOLD = 0.2;
+
 	private static final int DATA_SIZE = 1024;
 
 	private final List<Distance> distancies;
@@ -134,11 +136,11 @@ public class Algorithm {
 			// Find first point peak.
 			int startIndex = 0;
 
-			while (startIndex < filtered.length && filtered[startIndex] >= 0.0) {
+			while (startIndex < filtered.length && filtered[startIndex] >= CORNER_THRESHOLD) {
 				startIndex += 1;
 			}
 
-			while (startIndex < filtered.length && filtered[startIndex] < 0.0) {
+			while (startIndex < filtered.length && filtered[startIndex] < CORNER_THRESHOLD) {
 				startIndex += 1;
 			}
 
@@ -158,20 +160,20 @@ public class Algorithm {
 
 				double value = filtered[offset];
 
-				if (value >= 0.0 && inPoint) {
+				if (value >= CORNER_THRESHOLD && inPoint) {
 					if (maxValue < value) {
 						maxValue = value;
 						maxIndex = offset;
 					}
-				} else if (value >= 0.0 && !inPoint) {
+				} else if (value >= CORNER_THRESHOLD && !inPoint) {
 					maxValue = value;
 					maxIndex = offset;
 					inPoint = true;
-				} else if (value < 0.0 && inPoint) {
+				} else if (value < CORNER_THRESHOLD && inPoint) {
 					Distance distance = distancies.get(indexes[maxIndex]);
 					found.add(distance);
 					inPoint = false;
-				} else if (value < 0.0 && !inPoint) {
+				} else if (value < CORNER_THRESHOLD && !inPoint) {
 					// Not in point, do nothing
 				}
 			}
