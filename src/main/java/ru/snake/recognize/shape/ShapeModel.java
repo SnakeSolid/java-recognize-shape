@@ -8,14 +8,11 @@ public class ShapeModel {
 
 	private final List<Point> values;
 
-	private final List<Point> points;
-
 	private Shape shape;
 
 	public ShapeModel() {
 		this.values = new ArrayList<>();
-		this.points = new ArrayList<>();
-		this.shape = Shape.NONE;
+		this.shape = Shape.none();
 	}
 
 	/**
@@ -38,13 +35,6 @@ public class ShapeModel {
 	 */
 	public List<Point> getValues() {
 		return values;
-	}
-
-	/**
-	 * @return the points
-	 */
-	public List<Point> getPoints() {
-		return points;
 	}
 
 }

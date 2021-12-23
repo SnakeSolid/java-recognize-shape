@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.geom.AffineTransform;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -26,15 +27,16 @@ public class Canvas extends JPanel {
 		g2.setColor(new Color(51, 102, 204));
 
 		List<Point> values = model.getValues();
+		Shape shape = model.getShape();
 
-		switch (model.getShape()) {
+		switch (shape.getShapeType()) {
 		case NONE:
 			break;
 
 		case POLYGON:
 			Polygon poligon = new Polygon();
 
-			for (Point point : model.getPoints()) {
+			for (Point point : shape.getPolygonPoints()) {
 				poligon.addPoint(point.x, point.y);
 			}
 
@@ -42,19 +44,18 @@ public class Canvas extends JPanel {
 			break;
 
 		case CIRCLE:
-			int minX = Integer.MAX_VALUE;
-			int maxX = Integer.MIN_VALUE;
-			int minY = Integer.MAX_VALUE;
-			int maxY = Integer.MIN_VALUE;
+			AffineTransform transform = g2.getTransform();
 
-			for (int i = 0; i < values.size() - 1; i += 1) {
-				minX = Math.min(minX, values.get(i).x);
-				minY = Math.min(minY, values.get(i).y);
-				maxX = Math.max(maxX, values.get(i).x);
-				maxY = Math.max(maxY, values.get(i).y);
-			}
+			g2.translate(shape.getEllipseCenter().x, shape.getEllipseCenter().y);
+			g2.rotate(-shape.getEllipseAngle());
+			g2.fillOval(
+				-shape.getEllipseWidth() / 2,
+				-shape.getEllipseHeight() / 2,
+				shape.getEllipseWidth(),
+				shape.getEllipseHeight()
+			);
 
-			g2.fillOval(minX, minY, maxX - minX, maxY - minY);
+			g2.setTransform(transform);
 			break;
 
 		default:

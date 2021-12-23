@@ -32,7 +32,7 @@ public class Algorithm {
 		this.kernel = Kernel.peakDetect(DATA_SIZE);
 	}
 
-	public Shape recognize(List<Point> sourcePoints, List<Point> polygonPoints) {
+	public Shape recognize(List<Point> sourcePoints) {
 		// --------------------------------------------------------------------
 		// Calculate center of point cloud.
 		int minX = Integer.MAX_VALUE;
@@ -130,7 +130,42 @@ public class Algorithm {
 		}
 
 		if (isCircle) {
-			return Shape.CIRCLE;
+			int minIndex = 0;
+			int maxIndex = 0;
+			double minValue = Integer.MAX_VALUE;
+			double maxValue = Integer.MIN_VALUE;
+
+			for (int index = 0; index < data.length; index += 1) {
+				double value = data[index];
+
+				if (value < minValue) {
+					minIndex = index;
+					minValue = value;
+				}
+
+				if (value > maxValue) {
+					maxIndex = index;
+					maxValue = value;
+				}
+			}
+
+			int agnleIndex = 0;
+			double agnleValue = Double.MIN_VALUE;
+
+			for (int index = 0; index < filtered.length; index += 1) {
+				double value = filtered[index];
+
+				if (value > agnleValue) {
+					agnleIndex = index;
+					agnleValue = value;
+				}
+			}
+
+			int ellipseWidth = (int) Math.sqrt(maximalDistance * distancies.get(indexes[maxIndex]).distance);
+			int ellipseHeight = (int) Math.sqrt(maximalDistance * distancies.get(indexes[minIndex]).distance);
+			double ellipseAngle = 2.0 * Math.PI * agnleIndex / DATA_SIZE + Math.PI / 2.0;
+
+			return Shape.circle(new Point(centerX, centerY), 2 * ellipseWidth, 2 * ellipseHeight, ellipseAngle);
 		} else {
 			// --------------------------------------------------------------------
 			// Find first point peak.
@@ -179,19 +214,19 @@ public class Algorithm {
 			}
 
 			if (found.size() > 5) {
-				return Shape.NONE;
+				return Shape.none();
 			}
 
 			Collections.sort(found, Comparator.comparingInt((Distance d) -> d.index).reversed());
 
-			polygonPoints.clear();
+			List<Point> polygonPoints = new ArrayList<>();
 
 			for (Distance foundDistancie : found) {
 				Point point = sourcePoints.get(foundDistancie.index);
 				polygonPoints.add(point);
 			}
 
-			return Shape.POLYGON;
+			return Shape.polygon(polygonPoints);
 		}
 	}
 

@@ -27,8 +27,7 @@ public class FrameMouseListener implements MouseListener, MouseMotionListener {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		model.getValues().clear();
-		model.getPoints().clear();
-		model.setShape(Shape.NONE);
+		model.setShape(Shape.none());
 	}
 
 	@Override
@@ -37,7 +36,7 @@ public class FrameMouseListener implements MouseListener, MouseMotionListener {
 			return;
 		}
 
-		Shape shape = algorithm.recognize(model.getValues(), model.getPoints());
+		Shape shape = algorithm.recognize(model.getValues());
 		model.setShape(shape);
 
 		canvas.repaint(new Rectangle(0, 0, 600, 600));
