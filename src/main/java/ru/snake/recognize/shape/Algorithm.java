@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Algorithm {
 
+	private static final double CIRCLE_THRESHOLD = 0.8;
+
 	private static final int DATA_SIZE = 1024;
 
 	private final List<Distance> distancies;
@@ -118,7 +120,7 @@ public class Algorithm {
 		boolean isCircle = true;
 
 		for (double value : filtered) {
-			if (value > 1.0) {
+			if (value > CIRCLE_THRESHOLD) {
 				isCircle = false;
 
 				break;
