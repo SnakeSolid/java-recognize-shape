@@ -31,16 +31,20 @@ public class Algorithm {
 	public Shape recognize(List<Point> sourcePoints, List<Point> polygonPoints) {
 		// --------------------------------------------------------------------
 		// Calculate center of point cloud.
-		int centerX = 0;
-		int centerY = 0;
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
 
 		for (Point point : sourcePoints) {
-			centerX += point.x;
-			centerY += point.y;
+			minX = Math.min(minX, point.x);
+			minY = Math.min(minY, point.y);
+			maxX = Math.max(maxX, point.x);
+			maxY = Math.max(maxY, point.y);
 		}
 
-		centerX /= sourcePoints.size();
-		centerY /= sourcePoints.size();
+		int centerX = (minX + maxX) / 2;
+		int centerY = (minY + maxY) / 2;
 
 		// --------------------------------------------------------------------
 		// Calculate distances from center to every point.
