@@ -10,7 +10,7 @@ public class Algorithm {
 
 	private static final double CIRCLE_THRESHOLD = 0.8;
 
-	private static final double CORNER_THRESHOLD = 0.2;
+	private static final double CORNER_THRESHOLD = 0.0;
 
 	private static final int DATA_SIZE = 1024;
 
