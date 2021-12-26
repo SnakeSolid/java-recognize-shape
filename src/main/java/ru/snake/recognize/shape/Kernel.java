@@ -53,4 +53,17 @@ public class Kernel {
 		return new Kernel(values, center);
 	}
 
+	public static Kernel curveDetect(int dataSize) {
+		int size = dataSize / (2 * 5 + 1);
+		int center = (size / 2) | 1;
+		double values[] = new double[size];
+		double value = 1.0 / size;
+
+		for (int index = 0; index < size; index += 1) {
+			values[index] = value;
+		}
+
+		return new Kernel(values, center);
+	}
+
 }

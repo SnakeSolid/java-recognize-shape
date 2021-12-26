@@ -35,20 +35,11 @@ public class Algorithm {
 	public Shape recognize(List<Point> sourcePoints) {
 		// --------------------------------------------------------------------
 		// Calculate center of point cloud.
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int maxX = Integer.MIN_VALUE;
-		int maxY = Integer.MIN_VALUE;
+		ShapeCenter shapeCenter = new ShapeCenter();
+		shapeCenter.calculate(sourcePoints);
 
-		for (Point point : sourcePoints) {
-			minX = Math.min(minX, point.x);
-			minY = Math.min(minY, point.y);
-			maxX = Math.max(maxX, point.x);
-			maxY = Math.max(maxY, point.y);
-		}
-
-		int centerX = (minX + maxX) / 2;
-		int centerY = (minY + maxY) / 2;
+		int centerX = shapeCenter.getCenterX();
+		int centerY = shapeCenter.getCenterY();
 
 		// --------------------------------------------------------------------
 		// Calculate distances from center to every point.
@@ -61,7 +52,7 @@ public class Algorithm {
 			int deltaX = point.x - centerX;
 			int deltaY = point.y - centerY;
 
-			distance.distance = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
+			distance.distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 			distance.angle = Math.atan2(deltaX, deltaY);
 			distance.index = index;
 			distancies.add(distance);
@@ -83,7 +74,7 @@ public class Algorithm {
 		}
 
 		for (Distance distance : distancies) {
-			distance.distance = distance.distance / maximalDistance;
+			distance.normalized = distance.distance / maximalDistance;
 			distance.position = data.length * (distance.angle - minimalAngle) / (maximalAngle - minimalAngle);
 		}
 
@@ -97,14 +88,14 @@ public class Algorithm {
 				.binarySearch(distancies, dd, Comparator.comparingDouble((Distance d) -> d.position));
 
 			if (found >= 0) {
-				data[index] = distancies.get(found).distance;
+				data[index] = distancies.get(found).normalized;
 			} else {
 				int point = -found - 1;
 				Distance left = distancies.get(point - 1);
 				Distance right = distancies.get(point);
 				double factor = (index - left.position) / (left.position - right.position);
 
-				data[index] = left.distance + factor * (left.distance - right.distance);
+				data[index] = left.normalized + factor * (left.normalized - right.normalized);
 
 				if (factor < 0.5) {
 					indexes[index] = point - 1;
@@ -161,11 +152,12 @@ public class Algorithm {
 				}
 			}
 
-			int ellipseWidth = (int) Math.sqrt(maximalDistance * distancies.get(indexes[maxIndex]).distance);
-			int ellipseHeight = (int) Math.sqrt(maximalDistance * distancies.get(indexes[minIndex]).distance);
+			int ellipseWidth = (int) (distancies.get(indexes[maxIndex]).distance);
+			int ellipseHeight = (int) (distancies.get(indexes[minIndex]).distance);
 			double ellipseAngle = 2.0 * Math.PI * agnleIndex / DATA_SIZE + Math.PI / 2.0;
+			Point ellipseCenter = new Point(centerX, centerY);
 
-			return Shape.circle(new Point(centerX, centerY), 2 * ellipseWidth, 2 * ellipseHeight, ellipseAngle);
+			return Shape.circle(ellipseCenter, 2 * ellipseWidth, 2 * ellipseHeight, ellipseAngle);
 		} else {
 			// --------------------------------------------------------------------
 			// Find first point peak.

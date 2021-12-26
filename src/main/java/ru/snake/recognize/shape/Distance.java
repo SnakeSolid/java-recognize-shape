@@ -4,6 +4,8 @@ public class Distance {
 
 	public double distance = 0.0;
 
+	public double normalized = 0.0;
+
 	public double angle = 0.0;
 
 	public double position = 0.0;
@@ -12,7 +14,7 @@ public class Distance {
 
 	@Override
 	public String toString() {
-		return ("" + distance + ";" + angle + ";" + position + ";" + index).replace('.', ',');
+		return ("" + distance + ";" + normalized + ";" + angle + ";" + position + ";" + index).replace('.', ',');
 	}
 
 }
