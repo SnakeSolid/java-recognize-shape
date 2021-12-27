@@ -14,8 +14,28 @@ public class ShapeCenter {
 		this.centerY = 0;
 	}
 
-	public void calculate(List<Point> points) {
+	public void calculateBox(List<Point> points) {
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+
+		for (Point point : points) {
+			minX = Math.min(minX, point.x);
+			minY = Math.min(minY, point.y);
+			maxX = Math.max(maxX, point.x);
+			maxY = Math.max(maxY, point.y);
+		}
+
+		this.centerX = (minX + maxX) / 2;
+		this.centerY = (minY + maxY) / 2;
+	}
+
+	public void calculateLinear(List<Point> points) {
 		if (points.isEmpty()) {
+			this.centerX = 0;
+			this.centerY = 0;
+
 			return;
 		} else if (points.size() == 1) {
 			Point point = points.get(0);

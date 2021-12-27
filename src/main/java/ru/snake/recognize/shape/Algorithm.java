@@ -8,55 +8,38 @@ import java.util.List;
 
 public class Algorithm {
 
-	private static final double CIRCLE_THRESHOLD = 0.8;
+	private static final double CIRCLE_THRESHOLD = 0.4;
 
-	private static final double CORNER_THRESHOLD = 0.0;
+	private static final double CORNER_THRESHOLD = 0.1;
 
 	private static final int DATA_SIZE = 1024;
 
-	private final List<Distance> distancies;
+	private final ShapeCenter shapeCenter;
+
+	private final ShapeProfile shapeProfile;
 
 	private final Kernel kernel;
 
-	private final double[] data;
-
 	private final double[] filtered;
 
-	private final int[] indexes;
-
 	public Algorithm() {
-		this.distancies = new ArrayList<>();
-		this.data = new double[DATA_SIZE];
-		this.filtered = new double[DATA_SIZE];
-		this.indexes = new int[DATA_SIZE];
+		this.shapeCenter = new ShapeCenter();
+		this.shapeProfile = new ShapeProfile();
 		this.kernel = Kernel.peakDetect(DATA_SIZE);
+		this.filtered = new double[DATA_SIZE];
 	}
 
 	public Shape recognize(List<Point> sourcePoints) {
-		// --------------------------------------------------------------------
-		// Calculate center of point cloud.
-		ShapeCenter shapeCenter = new ShapeCenter();
-		shapeCenter.calculate(sourcePoints);
+		shapeCenter.calculateBox(sourcePoints);
 
 		int centerX = shapeCenter.getCenterX();
 		int centerY = shapeCenter.getCenterY();
 
-		// --------------------------------------------------------------------
-		// Calculate distances from center to every point.
-		distancies.clear();
+		shapeProfile.calculate(sourcePoints, centerX, centerY);
 
-		for (int index = 0; index < sourcePoints.size(); index += 1) {
-			Point point = sourcePoints.get(index);
-			Distance distance = new Distance();
-
-			int deltaX = point.x - centerX;
-			int deltaY = point.y - centerY;
-
-			distance.distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-			distance.angle = Math.atan2(deltaX, deltaY);
-			distance.index = index;
-			distancies.add(distance);
-		}
+		List<Distance> distancies = shapeProfile.getDistancies();
+		double[] data = shapeProfile.getValues();
+		int[] indexes = shapeProfile.getIndexes();
 
 		Collections.sort(distancies, Comparator.comparingDouble((Distance d) -> d.angle));
 
