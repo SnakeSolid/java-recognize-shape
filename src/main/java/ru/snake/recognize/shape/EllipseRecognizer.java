@@ -1,5 +1,6 @@
 package ru.snake.recognize.shape;
 
+import java.awt.Point;
 import java.util.List;
 
 public class EllipseRecognizer {
@@ -66,17 +67,21 @@ public class EllipseRecognizer {
 		ellipseAngle = 2.0 * Math.PI * agnleIndex / Algorithm.DATA_SIZE + Math.PI / 2.0;
 	}
 
-	public double mse(List<Distance> distances) {
+	public double mse(List<Point> points, int centerX, int centerY) {
 		double mse = 0.0;
 
-		for (Distance distance : distances) {
-			double cos01 = (Math.cos(distance.angle - ellipseAngle) + 1.0) / 2.0;
-			double delta = distance.distance - cos01 * (ellipseWidth - ellipseHeight) + ellipseHeight;
+		for (Point point : points) {
+			double dx = (point.x - centerX) * Math.cos(ellipseAngle) - (point.y - centerY) * Math.sin(ellipseAngle)
+					+ centerX;
+			double dy = (point.x - centerX) * Math.sin(ellipseAngle) + (point.y - centerY) * Math.cos(ellipseAngle)
+					+ centerY;
+			double distance = Math.sqrt(Math.pow(dx / ellipseWidth, 2.0) + Math.pow(dy / ellipseHeight, 2.0));
+			double delta = Math.pow(distance - 1.0, 2.0) * (Math.pow(dx, 2.0) + Math.pow(dy, 2.0));
 
 			mse += Math.pow(delta, 2.0);
 		}
 
-		mse /= distances.size();
+		mse /= points.size();
 
 		return mse;
 	}

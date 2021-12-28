@@ -64,11 +64,12 @@ public class Algorithm {
 		if (isCircle) {
 			EllipseRecognizer ellipseRecognizer = new EllipseRecognizer();
 			ellipseRecognizer.recognize(values, indexes, distances);
-			double mse = ellipseRecognizer.mse(distances);
+			double mse = ellipseRecognizer.mse(sourcePoints, centerX, centerY);
+
+			Point ellipseCenter = new Point(centerX, centerY);
 			int ellipseWidth = ellipseRecognizer.getEllipseWidth();
 			int ellipseHeight = ellipseRecognizer.getEllipseHeight();
 			double ellipseAngle = ellipseRecognizer.getEllipseAngle();
-			Point ellipseCenter = new Point(centerX, centerY);
 
 			System.out.println(mse);
 
