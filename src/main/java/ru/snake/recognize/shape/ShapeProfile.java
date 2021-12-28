@@ -2,23 +2,16 @@ package ru.snake.recognize.shape;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ShapeProfile {
 
-	private static final int DATA_SIZE = 1024;
-
 	private final List<Distance> distancies;
-
-	private final double[] values;
-
-	private final int[] indexes;
 
 	public ShapeProfile() {
 		this.distancies = new ArrayList<>();
-		this.values = new double[DATA_SIZE];
-		this.indexes = new int[DATA_SIZE];
 	}
 
 	public void calculate(List<Point> points, int centerX, int centerY) {
@@ -28,12 +21,9 @@ public class ShapeProfile {
 	/**
 	 * Calculate distances from given center to every point.
 	 *
-	 * @param points
-	 *            shape points
-	 * @param centerX
-	 *            center x
-	 * @param centerY
-	 *            center y
+	 * @param points  shape points
+	 * @param centerX center x
+	 * @param centerY center y
 	 */
 	private void calculateDistancies(List<Point> points, int centerX, int centerY) {
 		distancies.clear();
@@ -50,13 +40,8 @@ public class ShapeProfile {
 			distance.index = index;
 			distancies.add(distance);
 		}
-	}
 
-	/**
-	 * @return the dataSize
-	 */
-	public static int getDataSize() {
-		return DATA_SIZE;
+		Collections.sort(distancies, Comparator.comparingDouble((Distance d) -> d.angle));
 	}
 
 	/**
@@ -66,24 +51,9 @@ public class ShapeProfile {
 		return distancies;
 	}
 
-	/**
-	 * @return the values
-	 */
-	public double[] getValues() {
-		return values;
-	}
-
-	/**
-	 * @return the indexes
-	 */
-	public int[] getIndexes() {
-		return indexes;
-	}
-
 	@Override
 	public String toString() {
-		return "ShapeProfile [distancies=" + distancies + ", values=" + Arrays.toString(values) + ", indexes="
-				+ Arrays.toString(indexes) + "]";
+		return "ShapeProfile [distancies=" + distancies + "]";
 	}
 
 }

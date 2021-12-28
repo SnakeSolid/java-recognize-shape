@@ -8,24 +8,27 @@ import java.util.List;
 
 public class Algorithm {
 
+	public static final int DATA_SIZE = 1024;
+
 	private static final double CIRCLE_THRESHOLD = 0.4;
 
 	private static final double CORNER_THRESHOLD = 0.1;
-
-	private static final int DATA_SIZE = 1024;
 
 	private final ShapeCenter shapeCenter;
 
 	private final ShapeProfile shapeProfile;
 
-	private final Kernel kernel;
+	private final ShapeHistogram shapeHistogram;
+
+	private final Kernel peakKernel;
 
 	private final double[] filtered;
 
 	public Algorithm() {
 		this.shapeCenter = new ShapeCenter();
 		this.shapeProfile = new ShapeProfile();
-		this.kernel = Kernel.peakDetect(DATA_SIZE);
+		this.shapeHistogram = new ShapeHistogram();
+		this.peakKernel = Kernel.peakDetect(DATA_SIZE);
 		this.filtered = new double[DATA_SIZE];
 	}
 
@@ -37,58 +40,13 @@ public class Algorithm {
 
 		shapeProfile.calculate(sourcePoints, centerX, centerY);
 
-		List<Distance> distancies = shapeProfile.getDistancies();
-		double[] data = shapeProfile.getValues();
-		int[] indexes = shapeProfile.getIndexes();
+		List<Distance> distances = shapeProfile.getDistancies();
+		shapeHistogram.calculate(distances);
 
-		Collections.sort(distancies, Comparator.comparingDouble((Distance d) -> d.angle));
+		double[] values = shapeHistogram.getValues();
+		int[] indexes = shapeHistogram.getIndexes();
 
-		// --------------------------------------------------------------------
-		// Normalize distances to make algorithm scale independent. Maximal
-		// value distance must be 1.
-		double minimalAngle = 0.0;
-		double maximalAngle = 0.0;
-		double maximalDistance = 0.0;
-
-		for (Distance distance : distancies) {
-			minimalAngle = Math.min(distance.angle, minimalAngle);
-			maximalAngle = Math.max(distance.angle, maximalAngle);
-			maximalDistance = Math.max(distance.distance, maximalDistance);
-		}
-
-		for (Distance distance : distancies) {
-			distance.normalized = distance.distance / maximalDistance;
-			distance.position = data.length * (distance.angle - minimalAngle) / (maximalAngle - minimalAngle);
-		}
-
-		// --------------------------------------------------------------------
-		// Build distance chart mapped linearly to angle.
-		for (int index = 0; index < data.length; index += 1) {
-			Distance dd = new Distance();
-			dd.position = index;
-
-			int found = Collections
-				.binarySearch(distancies, dd, Comparator.comparingDouble((Distance d) -> d.position));
-
-			if (found >= 0) {
-				data[index] = distancies.get(found).normalized;
-			} else {
-				int point = -found - 1;
-				Distance left = distancies.get(point - 1);
-				Distance right = distancies.get(point);
-				double factor = (index - left.position) / (left.position - right.position);
-
-				data[index] = left.normalized + factor * (left.normalized - right.normalized);
-
-				if (factor < 0.5) {
-					indexes[index] = point - 1;
-				} else {
-					indexes[index] = point;
-				}
-			}
-		}
-
-		kernel.apply(data, filtered);
+		peakKernel.apply(values, filtered);
 
 		// --------------------------------------------------------------------
 		// Check that shape is circle. In this case peak detector must not any
@@ -104,41 +62,15 @@ public class Algorithm {
 		}
 
 		if (isCircle) {
-			int minIndex = 0;
-			int maxIndex = 0;
-			double minValue = Integer.MAX_VALUE;
-			double maxValue = Integer.MIN_VALUE;
-
-			for (int index = 0; index < data.length; index += 1) {
-				double value = data[index];
-
-				if (value < minValue) {
-					minIndex = index;
-					minValue = value;
-				}
-
-				if (value > maxValue) {
-					maxIndex = index;
-					maxValue = value;
-				}
-			}
-
-			int agnleIndex = 0;
-			double agnleValue = Double.MIN_VALUE;
-
-			for (int index = 0; index < filtered.length; index += 1) {
-				double value = filtered[index];
-
-				if (value > agnleValue) {
-					agnleIndex = index;
-					agnleValue = value;
-				}
-			}
-
-			int ellipseWidth = (int) (distancies.get(indexes[maxIndex]).distance);
-			int ellipseHeight = (int) (distancies.get(indexes[minIndex]).distance);
-			double ellipseAngle = 2.0 * Math.PI * agnleIndex / DATA_SIZE + Math.PI / 2.0;
+			EllipseRecognizer ellipseRecognizer = new EllipseRecognizer();
+			ellipseRecognizer.recognize(values, indexes, distances);
+			double mse = ellipseRecognizer.mse(distances);
+			int ellipseWidth = ellipseRecognizer.getEllipseWidth();
+			int ellipseHeight = ellipseRecognizer.getEllipseHeight();
+			double ellipseAngle = ellipseRecognizer.getEllipseAngle();
 			Point ellipseCenter = new Point(centerX, centerY);
+
+			System.out.println(mse);
 
 			return Shape.circle(ellipseCenter, 2 * ellipseWidth, 2 * ellipseHeight, ellipseAngle);
 		} else {
@@ -180,7 +112,7 @@ public class Algorithm {
 					maxIndex = offset;
 					inPoint = true;
 				} else if (value < CORNER_THRESHOLD && inPoint) {
-					Distance distance = distancies.get(indexes[maxIndex]);
+					Distance distance = distances.get(indexes[maxIndex]);
 					found.add(distance);
 					inPoint = false;
 				} else if (value < CORNER_THRESHOLD && !inPoint) {

@@ -53,7 +53,7 @@ public class Kernel {
 		return new Kernel(values, center);
 	}
 
-	public static Kernel curveDetect(int dataSize) {
+	public static Kernel flatDetect(int dataSize) {
 		int size = dataSize / (2 * 5 + 1);
 		int center = (size / 2) | 1;
 		double values[] = new double[size];
