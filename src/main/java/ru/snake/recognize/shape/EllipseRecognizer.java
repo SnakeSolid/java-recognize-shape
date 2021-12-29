@@ -71,14 +71,12 @@ public class EllipseRecognizer {
 		double mse = 0.0;
 
 		for (Point point : points) {
-			double dx = (point.x - centerX) * Math.cos(ellipseAngle) - (point.y - centerY) * Math.sin(ellipseAngle)
-					+ centerX;
-			double dy = (point.x - centerX) * Math.sin(ellipseAngle) + (point.y - centerY) * Math.cos(ellipseAngle)
-					+ centerY;
+			double dx = (point.x - centerX) * Math.cos(ellipseAngle) - (point.y - centerY) * Math.sin(ellipseAngle);
+			double dy = (point.x - centerX) * Math.sin(ellipseAngle) + (point.y - centerY) * Math.cos(ellipseAngle);
 			double distance = Math.sqrt(Math.pow(dx / ellipseWidth, 2.0) + Math.pow(dy / ellipseHeight, 2.0));
 			double delta = Math.pow(distance - 1.0, 2.0) * (Math.pow(dx, 2.0) + Math.pow(dy, 2.0));
 
-			mse += Math.pow(delta, 2.0);
+			mse += delta;
 		}
 
 		mse /= points.size();
