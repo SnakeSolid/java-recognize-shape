@@ -22,10 +22,11 @@ You can draw any shape using left mouse button. After shape is drawn algorithm
 will recognize the shape. Algorithm recognizes only polygons with 3-5 points
 and circles.
 
-## Example
+## Examples
 
 ![Triangle](images/shape-triangle.png)
 ![Square](images/shape-square.png)
 ![Polygon](images/shape-polygon.png)
 ![Ellipse](images/shape-ellipse.png)
+![Star](images/shape-star.png)
 ![Not recognized](images/shape-unknown.png)
