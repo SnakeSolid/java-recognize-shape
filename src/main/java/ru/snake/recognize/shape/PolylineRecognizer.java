@@ -172,7 +172,7 @@ public class PolylineRecognizer {
 	}
 
 	public double mse(List<Point> points, int centerX, int centerY) {
-		if (polygonPoints.isEmpty()) {
+		if (polygonPoints.size() < 2) {
 			return Double.MAX_VALUE;
 		}
 

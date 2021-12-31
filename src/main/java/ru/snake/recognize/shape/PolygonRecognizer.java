@@ -94,6 +94,10 @@ public class PolygonRecognizer {
 	}
 
 	public double mse(List<Point> points, int centerX, int centerY) {
+		if (polygonPoints.size() < 2) {
+			return Double.MAX_VALUE;
+		}
+
 		double mse = 0.0;
 
 		for (int indexIndex = 0; indexIndex < pointIndexes.size(); indexIndex += 1) {
