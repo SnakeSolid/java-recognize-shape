@@ -2,8 +2,6 @@ package ru.snake.recognize.shape;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 
@@ -19,8 +17,6 @@ public class PolylineRecognizer {
 
 	private final double[] filtered;
 
-	private final List<IndexValue> candidates;
-
 	private final List<Integer> pointIndexes;
 
 	private final List<Point> polygonPoints;
@@ -28,7 +24,6 @@ public class PolylineRecognizer {
 	public PolylineRecognizer() {
 		this.peakKernel = Kernel.peakDetect(Algorithm.DATA_SIZE);
 		this.filtered = new double[Algorithm.DATA_SIZE];
-		this.candidates = new ArrayList<>();
 		this.pointIndexes = new ArrayList<>();
 		this.polygonPoints = new ArrayList<>();
 	}
@@ -53,52 +48,12 @@ public class PolylineRecognizer {
 		}
 
 		// --------------------------------------------------------------------
-		// Find best point for every peak.
-		boolean inPoint = true;
-		double maxValue = filtered[startIndex];
-		int maxIndex = indexes[startIndex];
-
-		candidates.clear();
-
-		for (int index = 0; index < filtered.length; index += 1) {
-			int offset = index + startIndex;
-
-			if (offset >= filtered.length) {
-				offset -= filtered.length;
-			}
-
-			double value = filtered[offset];
-
-			if (value >= CORNER_THRESHOLD && inPoint) {
-				if (maxValue < value) {
-					maxValue = value;
-					maxIndex = offset;
-				}
-			} else if (value >= CORNER_THRESHOLD && !inPoint) {
-				maxValue = value;
-				maxIndex = offset;
-				inPoint = true;
-			} else if (value < CORNER_THRESHOLD && inPoint) {
-				Distance distance = distances.get(indexes[maxIndex]);
-				IndexValue indexValue = new IndexValue(distance.index, maxValue);
-				candidates.add(indexValue);
-				inPoint = false;
-			} else if (value < CORNER_THRESHOLD && !inPoint) {
-				// Not in point, do nothing
-			}
-		}
-
-		Collections.sort(candidates, Comparator.comparingDouble((IndexValue iv) -> iv.value).reversed());
-
+		// Start building line from first point.
 		pointIndexes.clear();
 		polygonPoints.clear();
 
-		if (candidates.isEmpty()) {
-			return;
-		}
-
-		pointIndexes.add(candidates.get(0).index);
-		polygonPoints.add(points.get(candidates.get(0).index));
+		pointIndexes.add(0);
+		polygonPoints.add(points.get(0));
 
 		int farIndex = 0;
 		double farDistance = Double.MIN_VALUE;
