@@ -7,23 +7,15 @@ import java.util.function.Function;
 
 public class PolylineRecognizer {
 
-	private static final double CORNER_THRESHOLD = 0.1;
-
 	private static final double MAX_DISTANCE = 0.2;
 
 	private static final int N_ITERATIONS = 10;
-
-	private final Kernel peakKernel;
-
-	private final double[] filtered;
 
 	private final List<Integer> pointIndexes;
 
 	private final List<Point> polygonPoints;
 
 	public PolylineRecognizer() {
-		this.peakKernel = Kernel.peakDetect(Algorithm.DATA_SIZE);
-		this.filtered = new double[Algorithm.DATA_SIZE];
 		this.pointIndexes = new ArrayList<>();
 		this.polygonPoints = new ArrayList<>();
 	}
@@ -33,20 +25,6 @@ public class PolylineRecognizer {
 	}
 
 	public void recognize(double[] values, int[] indexes, List<Point> points, List<Distance> distances) {
-		peakKernel.apply(values, filtered);
-
-		// --------------------------------------------------------------------
-		// Find first point peak.
-		int startIndex = 0;
-
-		while (startIndex < filtered.length && filtered[startIndex] >= CORNER_THRESHOLD) {
-			startIndex += 1;
-		}
-
-		while (startIndex < filtered.length && filtered[startIndex] < CORNER_THRESHOLD) {
-			startIndex += 1;
-		}
-
 		// --------------------------------------------------------------------
 		// Start building line from first point.
 		pointIndexes.clear();
